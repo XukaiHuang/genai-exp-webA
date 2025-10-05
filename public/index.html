@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Security Assistant</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+    #chat { border: 1px solid #ccc; background: #fff; padding: 10px; height: 420px; overflow-y: auto; margin-bottom: 10px; border-radius: 8px; }
+    .msg { margin: 8px 0; line-height: 1.4; }
+    .user { color: #0066cc; font-weight: bold; }
+    .ai { color: #009933; font-weight: bold; }
+    .loading { color: gray; font-style: italic; }
+    .preview { max-width: 200px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; }
+    #controls { display: flex; gap: 10px; }
+    #textInput { flex: 1; padding: 5px; }
+    button { padding: 6px 18px; cursor: pointer; border: none; background-color: #007bff; color: white; border-radius: 4px; }
+    button:hover { background-color: #0056b3; }
+  </style>
+</head>
+<body>
+  <h2>AI Security Assistant</h2>
+  <div id="chat"></div>
+  <div id="controls">
+    <input type="text" id="textInput" placeholder="Type your question here...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+  <p><b>Tip:</b> You may either <b>type</b> your question or <b>paste a screenshot (Ctrl+V)</b>.  
+  If you are not familiar with screenshots, you can simply copy and paste the text.  
+  Please wait a few seconds for the AI’s response.</p>
+  <div id="preview"></div>
+
+  <script>
+    let pastedImage = null;
+
+    document.addEventListener("paste", (event) => {
+      const items = event.clipboardData.items;
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          pastedImage = item.getAsFile();
+          const preview = document.getElementById("preview");
+          preview.innerHTML = `<p>📷 Image ready to send:</p><img src="${URL.createObjectURL(pastedImage)}" class="preview">`;
+        }
+      }
+    });
+
+    async function sendMessage() {
+      const textInput = document.getElementById("textInput");
+      const chatBox = document.getElementById("chat");
+      const text = textInput.value.trim();
+
+      if (!text && !pastedImage) {
+        alert("Please enter text or paste an image first.");
+        return;
+      }
+
+      chatBox.innerHTML += `<div class="msg user">You: ${text || "[Image only]"}</div>`;
+      if (pastedImage) chatBox.innerHTML += `<div class="msg"><img src="${URL.createObjectURL(pastedImage)}" class="preview"></div>`;
+
+      const loadingMsg = document.createElement("div");
+      loadingMsg.className = "msg loading";
+      loadingMsg.textContent = "AI is thinking, please wait a few seconds...";
+      chatBox.appendChild(loadingMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      const formData = new FormData();
+      formData.append("text", text);
+      if (pastedImage) formData.append("image", pastedImage);
+
+      try {
+        const response = await fetch("/chat", { method: "POST", body: formData });
+        const data = await response.json();
+
+        loadingMsg.remove();
+        chatBox.innerHTML += `<div class="msg ai">AI: ${data.text}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+      } catch (err) {
+        loadingMsg.textContent = "Error: Failed to get AI response.";
+        loadingMsg.className = "msg ai";
+      }
+
+      textInput.value = "";
+      pastedImage = null;
+      document.getElementById("preview").innerHTML = "";
+    }
+
+    document.getElementById("textInput").addEventListener("keydown", function(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>

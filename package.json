@@ -1,0 +1,17 @@
+{
+  "name": "genai-exp-A",
+  "version": "1.0.0",
+  "main": "serverA.js",
+  "type": "module",
+  "scripts": {
+    "start": "node serverA.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2",
+    "tesseract.js": "^5.0.5"
+  }
+}
