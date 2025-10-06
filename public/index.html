@@ -4,17 +4,61 @@
   <meta charset="UTF-8">
   <title>AI Security Assistant</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
-    #chat { border: 1px solid #ccc; background: #fff; padding: 10px; height: 420px; overflow-y: auto; margin-bottom: 10px; border-radius: 8px; }
-    .msg { margin: 8px 0; line-height: 1.4; }
-    .user { color: #0066cc; font-weight: bold; }
-    .ai { color: #009933; font-weight: bold; }
-    .loading { color: gray; font-style: italic; }
-    .preview { max-width: 200px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; }
-    #controls { display: flex; gap: 10px; }
-    #textInput { flex: 1; padding: 5px; }
-    button { padding: 6px 18px; cursor: pointer; border: none; background-color: #007bff; color: white; border-radius: 4px; }
-    button:hover { background-color: #0056b3; }
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 20px; 
+      background: #f8f9fa; 
+    }
+    #chat { 
+      border: 1px solid #ccc; 
+      background: #fff; 
+      padding: 10px; 
+      height: 420px; 
+      overflow-y: auto; 
+      margin-bottom: 10px; 
+      border-radius: 8px; 
+    }
+    .msg { 
+      margin: 8px 0; 
+      line-height: 1.4; 
+    }
+    .user { 
+      color: #0066cc; 
+      font-weight: bold; 
+    }
+    .ai { 
+      color: #009933; 
+      font-weight: bold; 
+    }
+    .loading { 
+      color: gray; 
+      font-style: italic; 
+    }
+    .preview { 
+      max-width: 200px; 
+      margin-top: 5px; 
+      border: 1px solid #ddd; 
+      border-radius: 6px; 
+    }
+    #controls { 
+      display: flex; 
+      gap: 10px; 
+    }
+    #textInput { 
+      flex: 1; 
+      padding: 5px; 
+    }
+    button { 
+      padding: 6px 18px; 
+      cursor: pointer; 
+      border: none; 
+      background-color: #007bff; 
+      color: white; 
+      border-radius: 4px; 
+    }
+    button:hover { 
+      background-color: #0056b3; 
+    }
     .notice {
       background-color: #fff3cd;
       border: 1px solid #ffeeba;
@@ -30,7 +74,7 @@
 <body>
   <h2>AI Security Assistant</h2>
 
-  <!-- ⚠️ Experimental Instruction -->
+  <!-- ⚠️ Experiment Instruction Notice -->
   <div class="notice">
     ⚠️ You are only allowed to use <b>AI assistance during the training phase</b>.<br>
     During the subsequent answering phase, <b>AI use is strictly prohibited</b>.<br>
@@ -38,18 +82,24 @@
   </div>
 
   <div id="chat"></div>
+
   <div id="controls">
     <input type="text" id="textInput" placeholder="Type your question here...">
     <button onclick="sendMessage()">Send</button>
   </div>
-  <p><b>Tip:</b> You may either <b>type</b> your question or <b>paste a screenshot (Ctrl+V)</b>.<br>
-  If you are not familiar with screenshots, you can simply copy and paste the text.<br>
-  Please wait a few seconds for the AI’s response.</p>
+
+  <p>
+    <b>Tip:</b> You may either <b>type</b> your question or <b>paste a screenshot (Ctrl+V)</b>.<br>
+    If you are not familiar with screenshots, you can simply copy and paste the text.<br>
+    ⚠️ <b>Please be patient — the first AI response may take 10–15 seconds</b>, especially when the system is starting up.
+  </p>
+
   <div id="preview"></div>
 
   <script>
     let pastedImage = null;
 
+    // Handle pasted screenshots
     document.addEventListener("paste", (event) => {
       const items = event.clipboardData.items;
       for (const item of items) {
@@ -61,6 +111,7 @@
       }
     });
 
+    // Send message to server
     async function sendMessage() {
       const textInput = document.getElementById("textInput");
       const chatBox = document.getElementById("chat");
@@ -72,11 +123,13 @@
       }
 
       chatBox.innerHTML += `<div class="msg user">You: ${text || "[Image only]"}</div>`;
-      if (pastedImage) chatBox.innerHTML += `<div class="msg"><img src="${URL.createObjectURL(pastedImage)}" class="preview"></div>`;
+      if (pastedImage) {
+        chatBox.innerHTML += `<div class="msg"><img src="${URL.createObjectURL(pastedImage)}" class="preview"></div>`;
+      }
 
       const loadingMsg = document.createElement("div");
       loadingMsg.className = "msg loading";
-      loadingMsg.textContent = "AI is thinking, please wait a few seconds...";
+      loadingMsg.textContent = "AI is thinking... please wait 10–15 seconds for the first response.";
       chatBox.appendChild(loadingMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -102,6 +155,7 @@
       document.getElementById("preview").innerHTML = "";
     }
 
+    // Allow Enter key to send message
     document.getElementById("textInput").addEventListener("keydown", function(event) {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
